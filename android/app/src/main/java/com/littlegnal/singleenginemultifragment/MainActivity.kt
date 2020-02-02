@@ -1,72 +1,99 @@
 package com.littlegnal.singleenginemultifragment
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+import io.flutter.Log
 import io.flutter.embedding.android.FlutterFragment
 import io.flutter.embedding.android.FlutterView
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
 
+
 class MainActivity : AppCompatActivity() {
 
     private val TAG_FLUTTER_FRAGMENT = "flutter_fragment"
 
+    private var flutterFragment: FlutterFragment? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.setLogLevel(android.util.Log.VERBOSE)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val flutterEngine = FlutterEngine(applicationContext)
-        flutterEngine.navigationChannel.setInitialRoute("/")
-        flutterEngine.dartExecutor
-            .executeDartEntrypoint(DartExecutor.DartEntrypoint.createDefault())
-        FlutterEngineCache.getInstance().put("cache_engine", flutterEngine)
-
-        // Add a new FlutterFragment
-        findViewById<AppCompatButton>(R.id.btnAddFragment).setOnClickListener {
-            val flutterFragment: FlutterFragment = FlutterFragment
-                .withCachedEngine("cache_engine")
-                .transparencyMode(FlutterView.TransparencyMode.transparent)
-                .renderMode(FlutterView.RenderMode.texture)
-                .shouldAttachEngineToActivity(false)
-                .build()
-            supportFragmentManager
-                .beginTransaction()
-                .add(
-                    R.id.flFlutterFragment,
-                    flutterFragment as Fragment,
-                    null
-                )
-                .addToBackStack(null)
-                .commit()
+        if (FlutterEngineCache.getInstance().get("cache_engine") == null) {
+            val flutterEngine = FlutterEngine(applicationContext)
+            flutterEngine.navigationChannel.setInitialRoute("/")
+            flutterEngine.dartExecutor
+                .executeDartEntrypoint(DartExecutor.DartEntrypoint.createDefault())
+            FlutterEngineCache.getInstance().put("cache_engine", flutterEngine)
         }
 
-        // Pop a FlutterFragment
-        findViewById<AppCompatButton>(R.id.btnPopFragment).setOnClickListener {
-            onBackPressed()
+        // Start a new FlutterFragment which host by MainActivity
+        findViewById<AppCompatButton>(R.id.btnAddActivity).setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
         }
 
-        var flutterFragment: FlutterFragment? = supportFragmentManager
+        // Finish MainActivity
+        findViewById<AppCompatButton>(R.id.btnFinishActivity).setOnClickListener {
+            finish()
+        }
+
+        flutterFragment = supportFragmentManager
             .findFragmentByTag(TAG_FLUTTER_FRAGMENT) as? FlutterFragment
 
         if (flutterFragment == null) {
-            flutterFragment = FlutterFragment
+            val ff: FlutterFragment = FlutterFragment
                 .withCachedEngine("cache_engine")
                 .transparencyMode(FlutterView.TransparencyMode.transparent)
                 .renderMode(FlutterView.RenderMode.texture)
-                .shouldAttachEngineToActivity(false)
                 .build()
             supportFragmentManager
                 .beginTransaction()
                 .add(
                     R.id.flFlutterFragment,
-                    flutterFragment as Fragment,
+                    ff as Fragment,
                     TAG_FLUTTER_FRAGMENT
                 )
                 .commit()
         }
+    }
+
+    override fun onPostResume() {
+        super.onPostResume()
+        flutterFragment?.onPostResume()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        flutterFragment?.onNewIntent(intent)
+        super.onNewIntent(intent)
+    }
+
+    override fun onBackPressed() {
+        flutterFragment?.onBackPressed()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String?>,
+        grantResults: IntArray
+    ) {
+        flutterFragment?.onRequestPermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        )
+    }
+
+    override fun onUserLeaveHint() {
+        flutterFragment?.onUserLeaveHint()
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        flutterFragment?.onTrimMemory(level)
     }
 }
