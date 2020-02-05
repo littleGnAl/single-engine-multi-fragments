@@ -24,13 +24,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (FlutterEngineCache.getInstance().get("cache_engine") == null) {
-            val flutterEngine = FlutterEngine(applicationContext)
-            flutterEngine.navigationChannel.setInitialRoute("/")
-            flutterEngine.dartExecutor
-                .executeDartEntrypoint(DartExecutor.DartEntrypoint.createDefault())
-            FlutterEngineCache.getInstance().put("cache_engine", flutterEngine)
-        }
+//        if (FlutterEngineCache.getInstance().get("cache_engine") == null) {
+//            val flutterEngine = FlutterEngine(applicationContext)
+//            flutterEngine.navigationChannel.setInitialRoute("/")
+//            flutterEngine.dartExecutor
+//                .executeDartEntrypoint(DartExecutor.DartEntrypoint.createDefault())
+//            FlutterEngineCache.getInstance().put("cache_engine", flutterEngine)
+//        }
 
         // Start a new FlutterFragment which host by MainActivity
         findViewById<AppCompatButton>(R.id.btnAddActivity).setOnClickListener {
@@ -46,20 +46,30 @@ class MainActivity : AppCompatActivity() {
             .findFragmentByTag(TAG_FLUTTER_FRAGMENT) as? FlutterFragment
 
         if (flutterFragment == null) {
-            val ff: FlutterFragment = FlutterFragment
-                .withCachedEngine("cache_engine")
-                .transparencyMode(FlutterView.TransparencyMode.transparent)
-                .renderMode(FlutterView.RenderMode.texture)
-                .build()
+            val ff: FlutterFragment = FlutterFragmentManager.get().getFlutterFragment(this)
             supportFragmentManager
                 .beginTransaction()
                 .add(
                     R.id.flFlutterFragment,
                     ff as Fragment,
-                    TAG_FLUTTER_FRAGMENT
+                    null
                 )
                 .commit()
         }
+    }
+
+    override fun onStart() {
+        flutterFragment = FlutterFragmentManager.get().getFlutterFragment(this)
+        supportFragmentManager
+            .beginTransaction()
+            .remove(flutterFragment as Fragment)
+            .add(
+                R.id.flFlutterFragment,
+                 flutterFragment as Fragment,
+                null
+            )
+            .commitNowAllowingStateLoss()
+        super.onStart()
     }
 
     override fun onPostResume() {
