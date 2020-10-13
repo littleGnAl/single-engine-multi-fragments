@@ -26,14 +26,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (FlutterEngineCache.getInstance().get("cache_engine") == null) {
-            val flutterEngine = FlutterEngine(applicationContext)
-            flutterEngine.navigationChannel.setInitialRoute("/")
-            flutterEngine.dartExecutor
-                .executeDartEntrypoint(DartExecutor.DartEntrypoint.createDefault())
-            FlutterEngineCache.getInstance().put("cache_engine", flutterEngine)
-        }
-
         // Start a new FlutterFragment which host by MainActivity
         findViewById<AppCompatButton>(R.id.btnAddActivity).setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
