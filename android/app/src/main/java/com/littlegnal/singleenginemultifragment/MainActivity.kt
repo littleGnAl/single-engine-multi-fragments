@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment
 import io.flutter.Log
 import io.flutter.embedding.android.FlutterFragment
 import io.flutter.embedding.android.FlutterView
+import io.flutter.embedding.android.RenderMode
+import io.flutter.embedding.android.TransparencyMode
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.FlutterEngineCache
 import io.flutter.embedding.engine.dart.DartExecutor
@@ -48,8 +50,8 @@ class MainActivity : AppCompatActivity() {
         if (flutterFragment == null) {
             val ff: FlutterFragment = FlutterFragment
                 .withCachedEngine("cache_engine")
-                .transparencyMode(FlutterView.TransparencyMode.transparent)
-                .renderMode(FlutterView.RenderMode.texture)
+                .transparencyMode(TransparencyMode.transparent)
+                .renderMode(RenderMode.texture)
                 .build()
             supportFragmentManager
                 .beginTransaction()
