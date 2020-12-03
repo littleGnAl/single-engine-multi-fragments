@@ -36,7 +36,7 @@ android {
 
 repositories {
     maven {
-        url '/Users/littlegnal/codes/git-clone/single-engine-multi-fragments/flutter_module/build/host/outputs/repo'
+        url "${rootProject.projectDir.parent}/flutter_module/build/host/outputs/repo"
     }
     maven {
         url 'http://download.flutter.io'
