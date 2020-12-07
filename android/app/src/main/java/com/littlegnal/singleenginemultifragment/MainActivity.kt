@@ -6,14 +6,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import io.flutter.Log
-import io.flutter.embedding.android.FlutterFragment
-import io.flutter.embedding.android.FlutterView
-import io.flutter.embedding.android.RenderMode
-import io.flutter.embedding.android.TransparencyMode
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.embedding.engine.FlutterEngineCache
-import io.flutter.embedding.engine.dart.DartExecutor
+import io.flutter.embedding.android.*
 
+class FlutterFragmentBuilder(subclass: Class<out FlutterFragment>, engineId: String) :
+    FlutterFragment.CachedEngineFragmentBuilder(subclass, engineId) {
+}
+
+class CustomXFlutterFragment : XFlutterFragment() {}
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,10 +38,20 @@ class MainActivity : AppCompatActivity() {
         flutterFragment = supportFragmentManager
             .findFragmentByTag(TAG_FLUTTER_FRAGMENT) as? FlutterFragment
 
+
+
         if (flutterFragment == null) {
-            val ff: FlutterFragment = FlutterFragment
+//            val bundle = Bundle().apply {
+//
+//                putString("cached_engine_id", "cache_engine")
+//                putString("flutterview_transparency_mode", TransparencyMode.transparent.name)
+//                putString("flutterview_render_mode", RenderMode.texture.name)
+//
+//            }
+//            val ff = CustomXFlutterFragment().apply { arguments = bundle }
+            val ff: CopiedFlutterFragment = CopiedFlutterFragment
                 .withCachedEngine("cache_engine")
-                .transparencyMode(TransparencyMode.transparent)
+                .transparencyMode(TransparencyMode.opaque)
                 .renderMode(RenderMode.texture)
                 .build()
             supportFragmentManager
